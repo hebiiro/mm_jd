@@ -60,12 +60,6 @@
 #include "kuro/gdi/renderer/comdlg32/dialog.hpp"
 #include "kuro/gdi/renderer/comdlg32/direct_ui_hwnd.hpp"
 #include "kuro/gdi/renderer/comdlg32/dui_view.hpp"
-#include "kuro/gdi/renderer/aviutl2/listbox.hpp"
-#include "kuro/gdi/renderer/aviutl2/font_setting/listview.hpp"
-#include "kuro/gdi/renderer/aviutl2/new_project/dialog.hpp"
-#include "kuro/gdi/renderer/aviutl2/layer_name/dialog.hpp"
-#include "kuro/gdi/renderer/mp4_exporter/dialog.hpp"
-#include "kuro/gdi/renderer/rigaya/dialog.hpp"
 #include "kuro/gdi/manager.hpp"
 #include "kuro/theme/name.hpp"
 #include "kuro/theme/renderer.hpp"
@@ -108,8 +102,7 @@
 #include "io_base.hpp"
 #include "assets_io.hpp"
 #include "config_io.hpp"
-#include "aviutl2_window.hpp"
-#include "available_fonts.hpp"
+#include "mmd_window.hpp"
 #include "app.hpp"
 
 namespace apn::dark

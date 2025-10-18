@@ -110,8 +110,10 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
-			read_bool(root, "slimbar.flag_use", hive.slimbar.flag_use);
-			read_string(root, "slimbar.title_format", hive.slimbar.title_format);
+			read_bool(root, "slimbar.flag_use", my::slimbar_t::config.flag_use);
+			read_bool(root, "slimbar.flag_whole_title", my::slimbar_t::config.flag_whole_title);
+			read_string(root, "slimbar.title_format", my::slimbar_t::config.title_format);
+			read_int(root, "slimbar.button_width", my::slimbar_t::config.button_width);
 
 			return TRUE;
 		}
@@ -123,8 +125,10 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
-			write_bool(root, "slimbar.flag_use", hive.slimbar.flag_use);
-			write_string(root, "slimbar.title_format", hive.slimbar.title_format);
+			write_bool(root, "slimbar.flag_use", my::slimbar_t::config.flag_use);
+			write_bool(root, "slimbar.flag_whole_title", my::slimbar_t::config.flag_whole_title);
+			write_string(root, "slimbar.title_format", my::slimbar_t::config.title_format);
+			write_int(root, "slimbar.button_width", my::slimbar_t::config.button_width);
 
 			return TRUE;
 		}
@@ -246,7 +250,6 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
-			read_bool(root, "etc.default_mouse_activate", hive.etc.default_mouse_activate);
 			read_window_pos(root, "config_dialog", config_dialog);
 
 			return TRUE;
@@ -259,79 +262,7 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
-			write_bool(root, "etc.default_mouse_activate", hive.etc.default_mouse_activate);
 			write_window_pos(root, "config_dialog", config_dialog);
-
-			return TRUE;
-		}
-
-		//
-		// ノードからフォントプレビューの設定を読み込みます。
-		//
-		BOOL read_fonts(n_json& root)
-		{
-			MY_TRACE_FUNC("");
-
-			read_int(root, "fonts.window_width", hive.fonts.window_size.cx);
-			read_int(root, "fonts.window_height", hive.fonts.window_size.cy);
-			read_int(root, "fonts.item_height", hive.fonts.item_height);
-			read_int(root, "fonts.font_height", hive.fonts.font_height);
-			read_string(root, "fonts.sample_text_format", hive.fonts.sample_text_format);
-			read_bool(root, "fonts.use_on_menu", hive.fonts.use_on_menu);
-			read_bool(root, "fonts.use_on_listbox", hive.fonts.use_on_listbox);
-			read_bool(root, "fonts.use_on_listview", hive.fonts.use_on_listview);
-			read_string(root, "dialog_name.set_font_menu", hive.dialog_name.set_font_menu);
-
-			return TRUE;
-		}
-
-		//
-		// ノードにフォントプレビューの設定を書き込みます。
-		//
-		BOOL write_fonts(n_json& root)
-		{
-			MY_TRACE_FUNC("");
-
-			write_int(root, "fonts.window_width", hive.fonts.window_size.cx);
-			write_int(root, "fonts.window_height", hive.fonts.window_size.cy);
-			write_int(root, "fonts.item_height", hive.fonts.item_height);
-			write_int(root, "fonts.font_height", hive.fonts.font_height);
-			write_string(root, "fonts.sample_text_format", hive.fonts.sample_text_format);
-			write_bool(root, "fonts.use_on_menu", hive.fonts.use_on_menu);
-			write_bool(root, "fonts.use_on_listbox", hive.fonts.use_on_listbox);
-			write_bool(root, "fonts.use_on_listview", hive.fonts.use_on_listview);
-
-			return TRUE;
-		}
-
-		//
-		// ノードからダイアログ名の設定を読み込みます。
-		//
-		BOOL read_dialog_name(n_json& root)
-		{
-			MY_TRACE_FUNC("");
-
-			read_string(root, "dialog_name.new_project", hive.dialog_name.new_project);
-			read_string(root, "dialog_name.new_scene", hive.dialog_name.new_scene);
-			read_string(root, "dialog_name.set_scene", hive.dialog_name.set_scene);
-			read_string(root, "dialog_name.set_layer_name", hive.dialog_name.set_layer_name);
-			read_string(root, "dialog_name.set_font_menu", hive.dialog_name.set_font_menu);
-
-			return TRUE;
-		}
-
-		//
-		// ノードにダイアログ名の設定を書き込みます。
-		//
-		BOOL write_dialog_name(n_json& root)
-		{
-			MY_TRACE_FUNC("");
-
-			write_string(root, "dialog_name.new_project", hive.dialog_name.new_project);
-			write_string(root, "dialog_name.new_scene", hive.dialog_name.new_scene);
-			write_string(root, "dialog_name.set_scene", hive.dialog_name.set_scene);
-			write_string(root, "dialog_name.set_layer_name", hive.dialog_name.set_layer_name);
-			write_string(root, "dialog_name.set_font_menu", hive.dialog_name.set_font_menu);
 
 			return TRUE;
 		}
@@ -350,8 +281,6 @@ namespace apn::dark
 			read_border(root);
 			read_gradient(root);
 			read_shadow(root);
-			read_fonts(root);
-			read_dialog_name(root);
 			read_etc(root);
 
 			return TRUE;
@@ -371,8 +300,6 @@ namespace apn::dark
 			write_border(root);
 			write_gradient(root);
 			write_shadow(root);
-			write_fonts(root);
-			write_dialog_name(root);
 			write_etc(root);
 
 			return TRUE;

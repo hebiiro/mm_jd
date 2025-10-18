@@ -35,14 +35,14 @@ namespace apn::dark
 		HWND theme_window = nullptr;
 
 		//
+		// スリムバー(を持つウィンドウ)です。
+		//
+		my::slimbar_t slimbar;
+
+		//
 		// コンフィグダイアログを表示するコマンドIDです。
 		//
 		int show_config_id = 0;
-
-		//
-		// 使用可能なフォントのコレクションです。
-		//
-		std::unordered_set<std::wstring> available_fonts;
 
 		//
 		// アセットのファイル名です。
@@ -58,37 +58,6 @@ namespace apn::dark
 		// 現在表示されているコモンダイアログの数です。
 		//
 		ULONG comdlg32_visible_count = {};
-
-		//
-		// このクラスはダイアログ名(正規表現パターン)です。
-		//
-		struct DialogName
-		{
-			//
-			// 「プロジェクトを新規作成」のダイアログ名です。
-			//
-			std::wstring new_project = L"プロジェクトを新規作成|New Project";
-
-			//
-			// 「シーンを作成」のダイアログ名です。
-			//
-			std::wstring new_scene = L"シーンを作成|New Scene";
-
-			//
-			// 「シーンの設定」のダイアログ名です。
-			//
-			std::wstring set_scene = L"シーンの設定|Scene Settings";
-
-			//
-			// 「レイヤー名を変更」のダイアログ名です。
-			//
-			std::wstring set_layer_name = L"レイヤー名を変更|Rename Layer";
-
-			//
-			// 「フォントメニューの設定」のダイアログ名です。
-			//
-			std::wstring set_font_menu = L"フォントメニュー|Font Menu";
-		} dialog_name;
 
 		//
 		// このクラスはダークモード化の設定です。
@@ -136,27 +105,6 @@ namespace apn::dark
 			//
 			int32_t reduction = 50;
 		} scrollbar;
-
-		//
-		// このクラスはスリムバーの設定です。
-		//
-		struct SlimBar
-		{
-			//
-			// TRUEの場合はメニューバーをタイトルバーと一体化します。
-			//
-			BOOL flag_use = FALSE;
-
-			//
-			// TRUEの場合はタイトルをスリムバーの中央に描画します。
-			//
-			BOOL flag_center_of_bar = FALSE;
-
-			//
-			// スリムバー時のタイトルの書式です。
-			//
-			std::wstring title_format = L"AviUtl2 - %title%";
-		} slimbar;
 
 		//
 		// このクラスは丸みの設定です。
@@ -236,122 +184,6 @@ namespace apn::dark
 			//
 			int32_t size = 15;
 		} shadow;
-
-		//
-		// このクラスはその他の設定です。
-		//
-		struct Etc
-		{
-			//
-			// TRUEの場合は通常のマウスアクティブ化処理を実行します。
-			//
-			BOOL default_mouse_activate = TRUE;
-		} etc;
-
-		//
-		// このクラスはフォントプレビューの設定です。
-		//
-		struct Fonts
-		{
-			//
-			// リストボックスのサイズです。
-			//
-			SIZE window_size = { 1000, 800 };
-
-			//
-			// アイテムの高さです。
-			//
-			int item_height = 48;
-
-			//
-			// フォントの高さです。
-			//
-			int font_height = 48;
-
-			//
-			// サンプル文字列の書式です。
-			//
-			std::wstring sample_text_format = L"%font% サンプル0123456789";
-
-			//
-			// TRUEの場合はメニューでフォントを使用して描画します。
-			//
-			BOOL use_on_menu = TRUE;
-
-			//
-			// TRUEの場合はリストボックスでフォントを使用して描画します。
-			//
-			BOOL use_on_listbox = TRUE;
-
-			//
-			// TRUEの場合はリストビューでフォントを使用して描画します。
-			//
-			BOOL use_on_listview = TRUE;
-		} fonts;
-
-		//
-		// このクラスはプリセットの設定です。
-		//
-		struct Presets
-		{
-			//
-			// (全体の)プリセットです。
-			//
-			struct Preset {
-				std::wstring display_name;
-				std::wstring name;
-				std::wstring video_width;
-				std::wstring video_height;
-				std::wstring video_rate;
-				std::wstring audio_rate;
-			};
-			std::vector<Preset> preset_collection;
-
-			//
-			// 名前のプリセットです。
-			//
-			struct Name {
-				std::wstring display_name;
-				std::wstring name;
-			};
-			std::vector<Name> name_collection;
-
-			//
-			// 映像サイズのプリセットです。
-			//
-			struct VideoSize {
-				std::wstring display_name;
-				std::wstring width;
-				std::wstring height;
-			};
-			std::vector<VideoSize> video_size_collection;
-
-			//
-			// 映像レートのプリセットです。
-			//
-			struct VideoRate {
-				std::wstring display_name;
-				std::wstring rate;
-			};
-			std::vector<VideoRate> video_rate_collection;
-
-			//
-			// 音声レートのプリセットです。
-			//
-			struct AudioRate {
-				std::wstring display_name;
-				std::wstring rate;
-			};
-			std::vector<AudioRate> audio_rate_collection;
-
-			//
-			// レイヤー名のプリセットです。
-			//
-			struct LayerName {
-				std::wstring name;
-			};
-			std::vector<Name> layer_name_collection;
-		} presets;
 
 		//
 		// レンダラを使用するかどうかのフラグです。

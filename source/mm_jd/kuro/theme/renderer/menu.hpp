@@ -246,48 +246,6 @@ namespace apn::dark::kuro::theme
 				// 背景を塗りつぶさないようにします。
 				auto opaque = FALSE;
 
-				switch (part_id)
-				{
-				case MENU_POPUPITEM:
-				case MENU_POPUPITEMFOCUSABLE:
-					{
-						// ポップアップメニュー項目を
-						// フォントを使用して描画する場合は
-						if (hive.fonts.use_on_menu && text && rc)
-						{
-							// メニュー項目名をフォント名とみなします。
-							auto font_name = std::wstring(text, (size_t)c);
-
-							// フォントが使用可能な場合は
-							if (hive.available_fonts.contains(font_name))
-							{
-								auto font_height = my::get_height(*rc);
-
-								my::gdi::unique_ptr<HFONT> font(::CreateFontW(
-									font_height, 0, 0, 0, 0, FALSE, FALSE, FALSE,
-									DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-									DEFAULT_QUALITY, DEFAULT_PITCH, font_name.c_str()));
-								my::gdi::selector font_selector(dc, font.get());
-
-								// メニューの幅は変更できないのでフォント名をそのまま描画します。
-								auto preview_text = font_name;
-//								auto preview_text = my::replace(
-//									hive.fonts.sample_text_format, L"%font%", font_name);
-
-								// 右端まで描画できるように矩形を調整します。
-								auto rc2 = *rc;
-//								rc2.left = popup_item_rect.left;
-								rc2.right = popup_item_rect.right;
-
-								if (paint::stylus.d2d_draw_text(dc, &rc2, preview_text.c_str(), -1, text_flags, palette, part_id, state_id, opaque))
-									return S_OK;
-							}
-
-							break;
-						}
-					}
-				}
-
 				if (paint::stylus.d2d_draw_text(dc, rc, text, c, text_flags, palette, part_id, state_id, opaque))
 					return S_OK;
 			}

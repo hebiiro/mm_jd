@@ -42,10 +42,10 @@ namespace apn::dark::kuro::gdi
 		{
 			MY_TRACE_FUNC("{/hex}, {/hex}, {/hex}, {/hex}, {/hex}", hwnd, message, dc, control, brush);
 
-			// 親ウィンドウがMMDウィンドウの場合は
+			// 親ウィンドウがmmdウィンドウの場合は
 			if (hwnd == hive.theme_window)
 			{
-				// MMDウィンドウに処理させます。
+				// mmdウィンドウに処理させます。
 				return __super::on_ctl_color(hwnd, message, dc, control, brush);
 			}
 

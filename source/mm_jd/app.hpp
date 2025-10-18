@@ -5,7 +5,7 @@ namespace apn::dark
 	//
 	// このクラスはアプリケーションです。
 	//
-	inline struct App : AppInterface
+	inline struct app_t : app_interface_t
 	{
 		//
 		// スタイルファイルを監視します。
@@ -20,7 +20,7 @@ namespace apn::dark
 		//
 		// コンストラクタです。
 		//
-		App() { app = this; }
+		app_t() { app = this; }
 
 		//
 		// dllの初期化処理を実行します。
@@ -30,8 +30,7 @@ namespace apn::dark
 			MY_TRACE_FUNC("");
 
 			// 各種開始処理を実行します。
-			aviutl2_window.init();
-			available_fonts.init();
+			mmd_window.init();
 			assets_io.init();
 			config_io.init();
 			kuro::hook::manager.init();
@@ -98,8 +97,7 @@ namespace apn::dark
 			kuro::hook::manager.exit();
 			config_io.exit();
 			assets_io.exit();
-			available_fonts.exit();
-			aviutl2_window.exit();
+			mmd_window.exit();
 
 			return TRUE;
 		}
@@ -112,12 +110,7 @@ namespace apn::dark
 			MY_TRACE_FUNC("");
 
 			// スリムメニューバーの設定をウィンドウに適用します。
-			aviutl2_window.apply_slim_menubar();
-
-			// コンフィグをaviutl2ウィンドウに適用します。
-			aviutl2_window.apply_config();
-
-//			::DrawMenuBar(hive.theme_window);
+			hive.slimbar.apply_config();
 #if 0
 			// テスト用ダイアログを表示します。
 			TestDialog dialog; dialog.do_modal();
@@ -300,14 +293,6 @@ namespace apn::dark
 
 			// カスタムカラーファイルを再読み込みします。
 			return reload_custom_color_file();
-		}
-
-		//
-		// スリムメニューバーの設定をウィンドウに適用します。
-		//
-		virtual BOOL apply_slim_menubar() override
-		{
-			return aviutl2_window.apply_slim_menubar();
 		}
 
 		//

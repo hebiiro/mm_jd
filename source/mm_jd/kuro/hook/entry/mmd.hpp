@@ -3,7 +3,7 @@
 namespace apn::dark::kuro::hook
 {
 	//
-	// このクラスはMMD関係のフックを担当します。
+	// このクラスはmmd関係のフックを担当します。
 	//
 	inline struct mmd_t : Entry
 	{

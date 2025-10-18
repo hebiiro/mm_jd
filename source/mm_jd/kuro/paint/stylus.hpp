@@ -377,7 +377,7 @@ namespace apn::dark::kuro::paint
 		{
 			if (hive.jd.use_d2d)
 			{
-				TextAttribute text_attribute(dc, pigment, opaque);
+//				TextAttribute text_attribute(dc, pigment, opaque);
 
 				if (auto result = d2d::Texter(dc, text, c, rc, text_flags, pigment).draw_text())
 					return !!result;

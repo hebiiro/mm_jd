@@ -1,4 +1,10 @@
 ﻿#pragma once
+
+#define ISOLATION_AWARE_ENABLED 1
+#pragma comment(linker, "\"/manifestdependency:type='win32' \
+	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+	processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 //#define MY_TRACE_ENABLED
 #include <tchar.h>
 #include <crtdbg.h>
@@ -99,7 +105,3 @@ using namespace my::json;
 #include "common/my/file_update_checker.hpp"
 #include "common/my/uah_menu.hpp"
 #include "common/my/slimbar.hpp"
-
-#pragma comment(linker, "\"/manifestdependency:type='win32' \
-	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
-	processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")

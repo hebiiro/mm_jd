@@ -63,8 +63,10 @@ namespace apn::dark
 			set_check(IDC_JD_USE_D2D, hive.jd.use_d2d);
 			set_check(IDC_JD_EXCLUDE_COMDLG32, hive.jd.exclude_comdlg32);
 
-			set_check(IDC_SLIMBAR_FLAG_USE, hive.slimbar.flag_use);
-			set_text(IDC_SLIMBAR_TITLE_FORMAT, hive.slimbar.title_format);
+			set_check(IDC_SLIMBAR_FLAG_USE, hive.slimbar.config.flag_use);
+			set_check(IDC_SLIMBAR_FLAG_WHOLE_TITLE, hive.slimbar.config.flag_whole_title);
+			set_int(IDC_SLIMBAR_BUTTON_WIDTH, hive.slimbar.config.button_width);
+			set_text(IDC_SLIMBAR_TITLE_FORMAT, hive.slimbar.config.title_format);
 
 			set_check(IDC_ROUND_FLAG_USE, hive.round.flag_use);
 			set_int(IDC_ROUND_SIZE, hive.round.size);
@@ -86,23 +88,6 @@ namespace apn::dark
 			set_check(IDC_SCROLLBAR_HAS_GRIPPER, hive.scrollbar.has_gripper);
 			set_int(IDC_SCROLLBAR_REDUCTION, hive.scrollbar.reduction);
 
-			set_check(IDC_ETC_DEFAULT_MOUSE_ACTIVATE, hive.etc.default_mouse_activate);
-
-			set_text(IDC_FONTS_SAMPLE_TEXT_FORMAT, hive.fonts.sample_text_format);
-			set_int(IDC_FONTS_ITEM_HEIGHT, hive.fonts.item_height);
-			set_int(IDC_FONTS_FONT_HEIGHT, hive.fonts.font_height);
-			set_int(IDC_FONTS_WINDOW_WIDTH, hive.fonts.window_size.cx);
-			set_int(IDC_FONTS_WINDOW_HEIGHT, hive.fonts.window_size.cy);
-			set_check(IDC_FONTS_USE_ON_MENU, hive.fonts.use_on_menu);
-			set_check(IDC_FONTS_USE_ON_LISTBOX, hive.fonts.use_on_listbox);
-			set_check(IDC_FONTS_USE_ON_LISTVIEW, hive.fonts.use_on_listview);
-
-			set_text(IDC_DIALOG_NAME_NEW_PROJECT, hive.dialog_name.new_project);
-			set_text(IDC_DIALOG_NAME_NEW_SCENE, hive.dialog_name.new_scene);
-			set_text(IDC_DIALOG_NAME_SET_SCENE, hive.dialog_name.set_scene);
-			set_text(IDC_DIALOG_NAME_SET_LAYER_NAME, hive.dialog_name.set_layer_name);
-			set_text(IDC_DIALOG_NAME_SET_FONT_MENU, hive.dialog_name.set_font_menu);
-
 			return TRUE;
 		}
 
@@ -119,8 +104,10 @@ namespace apn::dark
 			get_check(IDC_JD_USE_D2D, hive.jd.use_d2d);
 			get_check(IDC_JD_EXCLUDE_COMDLG32, hive.jd.exclude_comdlg32);
 
-			get_check(IDC_SLIMBAR_FLAG_USE, hive.slimbar.flag_use);
-			get_text(IDC_SLIMBAR_TITLE_FORMAT, hive.slimbar.title_format);
+			get_check(IDC_SLIMBAR_FLAG_USE, hive.slimbar.config.flag_use);
+			get_check(IDC_SLIMBAR_FLAG_WHOLE_TITLE, hive.slimbar.config.flag_whole_title);
+			get_int(IDC_SLIMBAR_BUTTON_WIDTH, hive.slimbar.config.button_width);
+			get_text(IDC_SLIMBAR_TITLE_FORMAT, hive.slimbar.config.title_format);
 
 			get_check(IDC_ROUND_FLAG_USE, hive.round.flag_use);
 			get_int(IDC_ROUND_SIZE, hive.round.size);
@@ -141,23 +128,6 @@ namespace apn::dark
 			get_check(IDC_SCROLLBAR_ARROW_AS_BUTTON, hive.scrollbar.arrow_as_button);
 			get_check(IDC_SCROLLBAR_HAS_GRIPPER, hive.scrollbar.has_gripper);
 			get_int(IDC_SCROLLBAR_REDUCTION, hive.scrollbar.reduction);
-
-			get_check(IDC_ETC_DEFAULT_MOUSE_ACTIVATE, hive.etc.default_mouse_activate);
-
-			get_text(IDC_FONTS_SAMPLE_TEXT_FORMAT, hive.fonts.sample_text_format);
-			get_int(IDC_FONTS_ITEM_HEIGHT, hive.fonts.item_height);
-			get_int(IDC_FONTS_FONT_HEIGHT, hive.fonts.font_height);
-			get_int(IDC_FONTS_WINDOW_WIDTH, hive.fonts.window_size.cx);
-			get_int(IDC_FONTS_WINDOW_HEIGHT, hive.fonts.window_size.cy);
-			get_check(IDC_FONTS_USE_ON_MENU, hive.fonts.use_on_menu);
-			get_check(IDC_FONTS_USE_ON_LISTBOX, hive.fonts.use_on_listbox);
-			get_check(IDC_FONTS_USE_ON_LISTVIEW, hive.fonts.use_on_listview);
-
-			get_text(IDC_DIALOG_NAME_NEW_PROJECT, hive.dialog_name.new_project);
-			get_text(IDC_DIALOG_NAME_NEW_SCENE, hive.dialog_name.new_scene);
-			get_text(IDC_DIALOG_NAME_SET_SCENE, hive.dialog_name.set_scene);
-			get_text(IDC_DIALOG_NAME_SET_LAYER_NAME, hive.dialog_name.set_layer_name);
-			get_text(IDC_DIALOG_NAME_SET_FONT_MENU, hive.dialog_name.set_font_menu);
 
 			if (redraw) app->redraw();
 
@@ -198,20 +168,8 @@ namespace apn::dark
 							break;
 						}
 					case IDC_JD_EXCLUDE_COMDLG32:
-					case IDC_ETC_DEFAULT_MOUSE_ACTIVATE:
-					case IDC_FONTS_USE_ON_MENU:
-					case IDC_FONTS_USE_ON_LISTBOX:
-					case IDC_FONTS_USE_ON_LISTVIEW:
 						{
 							from_ui(FALSE);
-
-							break;
-						}
-					case IDC_SLIMBAR_FLAG_USE:
-						{
-							from_ui(FALSE);
-
-							app->apply_slim_menubar();
 
 							break;
 						}
@@ -229,16 +187,6 @@ namespace apn::dark
 
 							break;
 						}
-					case IDC_SLIMBAR_TITLE_FORMAT:
-						{
-							if (hive.slimbar.flag_use)
-							{
-								if (code == EN_UPDATE)
-									from_ui(TRUE);
-							}
-
-							break;
-						}
 					case IDC_ROUND_SIZE:
 					case IDC_BORDER_WIDTH:
 					case IDC_GRADIENT_END_ALPHA:
@@ -252,19 +200,28 @@ namespace apn::dark
 
 							break;
 						}
-					case IDC_FONTS_WINDOW_WIDTH:
-					case IDC_FONTS_WINDOW_HEIGHT:
-					case IDC_FONTS_ITEM_HEIGHT:
-					case IDC_FONTS_FONT_HEIGHT:
-					case IDC_FONTS_SAMPLE_TEXT_FORMAT:
-					case IDC_DIALOG_NAME_NEW_PROJECT:
-					case IDC_DIALOG_NAME_NEW_SCENE:
-					case IDC_DIALOG_NAME_SET_SCENE:
-					case IDC_DIALOG_NAME_SET_LAYER_NAME:
-					case IDC_DIALOG_NAME_SET_FONT_MENU:
+					case IDC_SLIMBAR_FLAG_USE:
 						{
-							if (code == EN_UPDATE)
-								from_ui(FALSE);
+							from_ui(FALSE);
+
+							hive.slimbar.apply_config();
+
+							break;
+						}
+					case IDC_SLIMBAR_BUTTON_WIDTH:
+					case IDC_SLIMBAR_TITLE_FORMAT:
+						{
+							if (code != EN_UPDATE) break;
+
+							[[fallthrough]]; // このまま処理を続けます。
+						}
+					case IDC_SLIMBAR_FLAG_WHOLE_TITLE:
+						{
+							from_ui(FALSE);
+
+							if (!hive.slimbar.config.flag_use) break;
+
+							hive.slimbar.update_layout();
 
 							break;
 						}
