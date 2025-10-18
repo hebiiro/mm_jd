@@ -300,22 +300,22 @@ namespace apn::dark::kuro
 				// プラグインフォルダのパスを取得します。
 				auto plugin_folder_path = my::get_module_file_name(hive.instance).parent_path();
 
-				// カスタムカラーファイルのパスを取得します。
-				std::filesystem::path paths[] = {
-					plugin_folder_path / L"assets/style.conf",
-					plugin_folder_path / L"config/style.conf",
-				};
+				// スタイルファイルのパスを取得します。
+				auto assets_path = plugin_folder_path / L"assets/style.conf";
+				auto config_path = plugin_folder_path / L"config/style.conf";
 
-				// カスタムカラーファイルのパスの配列を走査します。
-				for (auto path : paths)
+				// コンフィグフォルダにファイルが存在しない場合は
+				if (!std::filesystem::exists(config_path))
 				{
-					// スタイルファイルを読み込みます。
-					read_file(path);
-
-					// ファイルパスをハイブにセットします。
-					hive.jd.style_file_name = path;
+					// アセットフォルダからコンフィグフォルダにファイルをコピーします。
+					std::filesystem::copy(assets_path, config_path);
 				}
 
+				// スタイルファイルを読み込みます。
+				read_file(config_path);
+
+				// ファイルパスをハイブにセットします。
+				hive.jd.style_file_name = config_path;
 			}
 			// 例外が発生した場合は
 			catch (std::exception& error)
