@@ -1,41 +1,50 @@
 ﻿#pragma once
 
-namespace apn::dark::kuro
+namespace my
 {
 	//
 	// このクラスはスリムバーです。
 	//
-	struct SlimBar : std::enable_shared_from_this<SlimBar>, my::Window
+	struct slimbar_t : my::Window
 	{
 		//
 		// ウィンドウメッセージです。
 		//
-		inline static constexpr struct Message {
-			inline static const auto c_draw = ::RegisterWindowMessageW(L"apn::dark::kuro::slimbar::draw");
+		inline static constexpr struct message_t {
+			inline static const auto c_apply_config = ::RegisterWindowMessageW(L"uah::slimbar::apply_config");
+			inline static const auto c_update_layout = ::RegisterWindowMessageW(L"uah::slimbar::update_layout");
 		} c_message;
 
 		//
-		// 描画コンテキストです。
+		// このクラスはスリムバーの設定です。
 		//
-		struct DrawContext {
-			HWND hwnd;
-			HTHEME theme;
-			HDC dc;
-			int part_id;
-			int state_id;
-			LPCRECT rc;
-		};
+		inline static struct config_t
+		{
+			//
+			// TRUEの場合はメニューバーをタイトルバーと一体化します。
+			//
+			BOOL flag_use = TRUE;
 
-		//
-		// スリムバーのコレクションです。
-		// ウィンドウに関連付けるために使用されます。
-		//
-		inline static thread_local std::unordered_map<HWND, std::shared_ptr<SlimBar>> slimbars;
+			//
+			// TRUEの場合はタイトルをスリムバー全体の中央に描画します。
+			//
+			BOOL flag_whole_title = FALSE;
+
+			//
+			// スリムバー時のタイトルの書式です。
+			//
+			std::wstring title_format = L"%title%";
+
+			//
+			// ボタンの幅(%)です。
+			//
+			int32_t button_width = 200;
+		} config;
 
 		//
 		// このクラスはスリムバーのボタンです。
 		//
-		struct Button { int ht; RECT rc, icon_rc; };
+		struct button_t { int ht; RECT rc, icon_rc; };
 
 		//
 		// ホバーまたはクリックされているボタンです。
@@ -50,7 +59,7 @@ namespace apn::dark::kuro
 		//
 		// ボタンの配列です。
 		//
-		Button buttons[4] = {
+		button_t buttons[4] = {
 			{ HTCLOSE, },
 			{ HTMAXBUTTON, },
 			{ HTMINBUTTON, },
@@ -63,38 +72,129 @@ namespace apn::dark::kuro
 		RECT title_rc = {};
 
 		//
-		// 仮想デストラクタです。
+		// TRUEの場合はアクティブなスリムバーを描画します。
 		//
-		virtual ~SlimBar()
+		BOOL is_active = {};
+
+		//
+		// スリムバーの設定をウィンドウに適用します。
+		//
+		BOOL apply_config()
 		{
+			// スリムバーを使用する場合は
+			if (config.flag_use)
+			{
+				// ウィンドウスタイルからボーダーを削除します。
+				my::modify_style(*this, WS_BORDER, 0);
+			}
+			// スリムバーを使用しない場合は
+			else
+			{
+				// ウィンドウスタイルにキャプションを追加します。
+				my::modify_style(*this, 0, WS_CAPTION);
+			}
+
+			// ウィンドウレイアウトを更新します。
+			::SetWindowPos(*this, nullptr, 0, 0, 0, 0,
+				SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+
+			// スリムバー全体を再描画します。
+			return redraw(*this);
 		}
 
 		//
-		// ウィンドウに関連付けられているスリムバーを返します。
+		// スリムバーのレイアウトを更新します。
 		//
-		inline static std::shared_ptr<SlimBar> get(HWND hwnd)
+		BOOL update_layout()
 		{
-			auto it = slimbars.find(hwnd);
-			if (it == slimbars.end()) return {};
-			return it->second;
-		}
+			//
+			// この関数は指定された矩形の中央に位置する指定された幅の矩形を返します。
+			//
+			const auto centering = [](const RECT& base_rc, int width)
+			{
+				auto rc = base_rc;
+				rc.left = (base_rc.left + base_rc.right - width) / 2;
+				rc.right = rc.left + width;
+				return rc;
+			};
 
-		//
-		// ウィンドウにアタッチします。
-		//
-		void attach(HWND hwnd)
-		{
-			slimbars[hwnd] = shared_from_this();
-			subclass(hwnd);
-		}
+			// ウィンドウ矩形を取得します。
+			auto window_rc = my::get_window_rect(hwnd);
 
-		//
-		// ウィンドウからデタッチします。
-		//
-		void detach(HWND hwnd)
-		{
-			unsubclass();
-			slimbars.erase(hwnd);
+			// スリムバー矩形を取得します。
+			auto bar_rc = get_bar_rc(hwnd);
+			::OffsetRect(&bar_rc, -window_rc.left, -window_rc.top);
+
+			// タイトル矩形を初期化します。
+			title_rc = bar_rc;
+
+			// メニューを取得します。
+			auto menu = ::GetMenu(hwnd);
+
+			// メニュー項目の数を取得します。
+			auto c = ::GetMenuItemCount(menu);
+
+			// メニュー項目を走査します。
+			for (decltype(c) i = 0; i < c; i++)
+			{
+				// メニュー項目の矩形を取得します。
+				auto item_rc = RECT {};
+				::GetMenuItemRect(hwnd, menu, i, &item_rc);
+				::OffsetRect(&item_rc, -window_rc.left, -window_rc.top);
+
+				// メニュー項目のタイプを取得します。
+				MENUITEMINFO mii = { sizeof(mii) };
+				mii.fMask = MIIM_FTYPE;
+				::GetMenuItemInfo(menu, i, TRUE, &mii);
+
+				// メニュー項目がメニューバーの右側にある場合は
+				if (mii.fType & MFT_RIGHTJUSTIFY)
+				{
+					// タイトル矩形の右端を更新します。
+					title_rc.right = item_rc.left;
+
+					// ループを終了します。
+					break;
+				}
+				// メニュー項目がメニューバーの左側にある場合は
+				else
+				{
+					// タイトル矩形の左端を更新します。
+					title_rc.left = item_rc.right;
+				}
+			}
+
+			// ボタンのサイズを算出します。
+			auto button_height = my::get_height(title_rc);
+			auto button_width = ::MulDiv(button_height, config.button_width, 100);
+
+			// 一番右のボタンの矩形を算出します。
+			auto button_rc = title_rc;
+			button_rc.left = button_rc.right - button_width;
+
+			// 一番右のボタンのアイコン矩形を算出します。
+			auto icon_rc = button_rc;
+			::InflateRect(&icon_rc, 0, -4);
+			auto icon_size = my::get_height(icon_rc);
+			icon_rc = centering(icon_rc, icon_size);
+
+			// ボタンを走査します。
+			for (auto& button : buttons)
+			{
+				// タイトル矩形の右端を更新します。
+				title_rc.right = button_rc.left;
+
+				// ボタン位置をセットします。
+				button.rc = button_rc;
+				button.icon_rc = icon_rc;
+
+				// 次のボタン位置に移動します。
+				::OffsetRect(&button_rc, -button_width, 0);
+				::OffsetRect(&icon_rc, -button_width, 0);
+			}
+
+			// スリムバー全体を再描画します。
+			return redraw(*this);
 		}
 
 		//
@@ -140,9 +240,6 @@ namespace apn::dark::kuro
 		//
 		BOOL redraw(HWND hwnd, auto... _hts)
 		{
-#if 0
-			return ::DrawMenuBar(hwnd);
-#else
 			// 再描画対象のヒットテストコードです。
 			const int hts[] = { _hts... };
 
@@ -188,18 +285,16 @@ namespace apn::dark::kuro
 			if (redraw)
 			{
 				// NC領域を再描画します。
-//				return ::SendMessage(hwnd, WM_NCPAINT, 0, 0), TRUE;
 				return ::SendMessage(hwnd, WM_NCPAINT, (WPARAM)rgn.release(), 0), TRUE;
 			}
 
 			return FALSE;
-#endif
 		}
 
 		//
 		// WM_NCHITTESTを処理します。
 		//
-		LRESULT on_nc_hittest(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_nc_hittest(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
 			// スコープ終了時にスリムバーを再描画するようにします。
 			my::scope_exit scope_exit([&, prev_ht = current_ht]()
@@ -217,13 +312,13 @@ namespace apn::dark::kuro
 			is_hovering = FALSE;
 
 			// まず、デフォルト処理を実行します。
-			auto result = __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			auto result = __super::on_wnd_proc(hwnd, message, w_param, l_param);
 
 			// メニュー内の場合は
 			if (result == HTMENU)
 			{
 				// カーソル位置を取得します。
-				auto pt = my::lp_to_pt(lParam);
+				auto pt = my::lp_to_pt(l_param);
 
 				// メニューを取得します。
 				auto menu = ::GetMenu(hwnd);
@@ -289,25 +384,25 @@ namespace apn::dark::kuro
 		//
 		// WM_NCLBUTTONDOWNを処理します。
 		//
-		LRESULT on_nc_l_button_down(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_nc_l_button_down(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
 			// ヒットテストコード取得します。
-			auto ht = (int)wParam;
+			auto ht = (int)w_param;
 
 			// ヒットテストコードが無効の場合は何もしません。
 			if (ht == HTNOWHERE)
-				return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+				return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 
 			// ボタンをホバーしていない場合は何もしません。
 			if (!is_hovering)
-				return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+				return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 
 			// ヒットテストコードがシステムメニューの場合は
 			if (ht == HTSYSMENU)
 			{
 				// システムメニューを表示します。
 				// ※0x313は非公開メッセージです。
-				return __super::on_wnd_proc(hwnd, 0x313, wParam, lParam);
+				return __super::on_wnd_proc(hwnd, 0x313, w_param, l_param);
 			}
 
 			// ヒットテストコードからボタンのインデックスを取得します。
@@ -329,7 +424,7 @@ namespace apn::dark::kuro
 
 			// ボタンのインデックスが無効の場合は何もしません。
 			if (i >= std::size(buttons))
-				return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+				return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 
 			// スリムバーボタンを取得します。
 			const auto& button = buttons[i];
@@ -382,20 +477,20 @@ namespace apn::dark::kuro
 							if (is_hovering = ::PtInRect(&button.rc, pt))
 							{
 								// カーソル位置を取得します。
-								auto lParam = my::pt_to_lp(my::get_cursor_pos());
+								auto l_param = my::pt_to_lp(my::get_cursor_pos());
 
 								switch (button.ht)
 								{
-								case HTCLOSE: ::PostMessage(hwnd, WM_SYSCOMMAND, SC_CLOSE, lParam); break;
+								case HTCLOSE: ::PostMessage(hwnd, WM_SYSCOMMAND, SC_CLOSE, l_param); break;
 								case HTMAXBUTTON:
 									{
 										::PostMessage(hwnd, WM_SYSCOMMAND,
-											::IsZoomed(hwnd) ? SC_RESTORE : SC_MAXIMIZE, lParam);
+											::IsZoomed(hwnd) ? SC_RESTORE : SC_MAXIMIZE, l_param);
 
 										break;
 									}
-								case HTMINBUTTON: ::PostMessage(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, lParam); break;
-								case HTSYSMENU: ::PostMessage(hwnd, WM_NCLBUTTONDOWN, HTSYSMENU, lParam); break;
+								case HTMINBUTTON: ::PostMessage(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, l_param); break;
+								case HTSYSMENU: ::PostMessage(hwnd, WM_NCLBUTTONDOWN, HTSYSMENU, l_param); break;
 								}
 							}
 
@@ -416,22 +511,22 @@ namespace apn::dark::kuro
 		//
 		// WM_NCRBUTTONDOWNを処理します。
 		//
-		LRESULT on_nc_r_button_down(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_nc_r_button_down(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
 			// キャプションで右クリックが発生した場合は
-			if (wParam == HTCAPTION)
+			if (w_param == HTCAPTION)
 			{
 				// システムメニューを表示します。
-				return __super::on_wnd_proc(hwnd, 0x313, wParam, lParam);
+				return __super::on_wnd_proc(hwnd, 0x313, w_param, l_param);
 			}
 
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 		}
 
 		//
 		// WM_NCMOUSELEAVEを処理します。
 		//
-		LRESULT on_nc_mouse_leave(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_nc_mouse_leave(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
 			// 直前のヒットテストコードを取得しておきます。
 			auto prev_ht = current_ht;
@@ -443,7 +538,7 @@ namespace apn::dark::kuro
 			// スリムバーを再描画します。
 			redraw(hwnd, current_ht, prev_ht);
 
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 		}
 
 		//
@@ -451,143 +546,58 @@ namespace apn::dark::kuro
 		// キャプションを外したのでキャプションが存在するかのように偽装します。
 		// これにより、キャプションなしでもスリムバーがテーマで描画されるようになります。
 		//
-		LRESULT on_style_changed(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_style_changed(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
-#if 0
+#if 1
 			return 0; // デフォルト処理を省略するだけでも正常に動作するようです。
 #else
-			if (wParam == GWL_STYLE)
+			if (w_param == GWL_STYLE)
 			{
-				auto ss = (STYLESTRUCT*)lParam;
+				auto ss = (STYLESTRUCT*)l_param;
 				ss->styleNew |= WS_CAPTION;
 			}
 
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 #endif
 		}
 
 		//
-		// WM_GETMINMAXINFOを処理します。
+		// WM_WINDOWPOSCHANGINGを処理します。
 		// キャプションを外したので最大化位置を手動で調整します。
 		//
-		LRESULT on_get_min_max_info(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_window_pos_changing(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
-			auto mmi = (MINMAXINFO*)lParam;
-			auto rc = my::get_monitor_rect(hwnd);
+			auto wp = (WINDOWPOS*)l_param;
 
-			mmi->ptMaxTrackSize.y = my::get_height(rc) - mmi->ptMaxPosition.y * 2; // 何故か2倍にすると丁度良くなります。
+			if (!(wp->flags & SWP_NOMOVE) && !(wp->flags & SWP_NOSIZE) &&::IsZoomed(hwnd))
+			{
+				auto rc = my::get_monitor_rect(hwnd);
+				::InflateRect(&rc, -wp->x, -wp->y);
+				wp->x = rc.left;
+				wp->y = rc.top;
+				wp->cx = my::get_width(rc);
+				wp->cy = my::get_height(rc);
+			}
 
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 		}
 
 		//
 		// WM_SIZEを処理します。
 		// スリムバーボタンの矩形を更新します。
 		//
-		LRESULT on_size(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_size(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
-			//
-			// この関数は指定された矩形の中央に位置する指定された幅の矩形を返します。
-			//
-			const auto centering = [](const RECT& base_rc, int width)
-			{
-				auto rc = base_rc;
-				rc.left = (base_rc.left + base_rc.right - width) / 2;
-				rc.right = rc.left + width;
-				return rc;
-			};
+			update_layout();
 
-			// ウィンドウ矩形を取得します。
-			auto window_rc = my::get_window_rect(hwnd);
-
-			// スリムバー矩形を取得します。
-			auto bar_rc = get_bar_rc(hwnd);
-			::OffsetRect(&bar_rc, -window_rc.left, -window_rc.top);
-
-			// タイトル矩形を初期化します。
-			title_rc = bar_rc;
-
-			// メニューを取得します。
-			auto menu = ::GetMenu(hwnd);
-
-			// メニュー項目の数を取得します。
-			auto c = ::GetMenuItemCount(menu);
-
-			// メニュー項目を走査します。
-			for (decltype(c) i = 0; i < c; i++)
-			{
-				// メニュー項目の矩形を取得します。
-				auto item_rc = RECT {};
-				::GetMenuItemRect(hwnd, menu, i, &item_rc);
-				::OffsetRect(&item_rc, -window_rc.left, -window_rc.top);
-
-				// メニュー項目のタイプを取得します。
-				MENUITEMINFO mii = { sizeof(mii) };
-				mii.fMask = MIIM_FTYPE;
-				::GetMenuItemInfo(menu, i, TRUE, &mii);
-
-				// メニュー項目がメニューバーの右側にある場合は
-				if (mii.fType & MFT_RIGHTJUSTIFY)
-				{
-					// タイトル矩形の右端を更新します。
-					title_rc.right = item_rc.left;
-
-					// ループを終了します。
-					break;
-				}
-				// メニュー項目がメニューバーの左側にある場合は
-				else
-				{
-					// タイトル矩形の左端を更新します。
-					title_rc.left = item_rc.right;
-				}
-			}
-
-			// 一番右のボタンの矩形を算出します。
-			auto button_rc = title_rc;
-			auto button_height = my::get_height(button_rc);
-//			auto button_width = ::MulDiv(button_height, 1, 1);
-//			auto button_width = ::MulDiv(button_height, 2, 1);
-//			auto button_width = ::MulDiv(button_height, 99, 70); // 高精度白銀比
-//			auto button_width = ::MulDiv(button_height, 1618, 1000); // 黄金比
-			auto button_width = ::MulDiv(button_height, 1732, 1000); // 白金比
-//			auto button_width = ::MulDiv(button_height, 3303, 1000); // 青銅比
-//			auto button_width = ::MulDiv(button_height, 1000 + 1414, 1000); // 1+白銀比
-//			auto button_width = ::MulDiv(button_height, 1000 + 1618, 1000); // 1+黄金比
-			button_rc.left = button_rc.right - button_width;
-
-			// 一番右のボタンのアイコン矩形を算出します。
-			auto icon_rc = button_rc;
-			::InflateRect(&icon_rc, 0, -4);
-			auto icon_size = my::get_height(icon_rc);
-			icon_rc = centering(icon_rc, icon_size);
-
-			// ボタンを走査します。
-			for (auto& button : buttons)
-			{
-				// タイトル矩形の右端を更新します。
-				title_rc.right = button_rc.left;
-
-				// ボタン位置をセットします。
-				button.rc = button_rc;
-				button.icon_rc = icon_rc;
-
-				// 次のボタン位置に移動します。
-				::OffsetRect(&button_rc, -button_width, 0);
-				::OffsetRect(&icon_rc, -button_width, 0);
-			}
-
-			// スリムバー全体を再描画します。
-			redraw(hwnd);
-
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 		}
 
 		//
 		// WM_SETTEXTを処理します。
 		// ウィンドウテキストが変更されるのでスリムバーを再描画します。
 		//
-		LRESULT on_set_text(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+		LRESULT on_set_text(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 		{
 			// スコープ終了時にスリムバーを再描画するようにします。
 			my::scope_exit scope_exit([&]()
@@ -598,7 +608,39 @@ namespace apn::dark::kuro
 			});
 
 			// デフォルト処理を実行してウィンドウテキストを更新します。
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
+		}
+
+		//
+		// WM_UAHDRAWMENUを処理します。
+		// メニューバーを描画した後にスリムバーを描画します。
+		//
+		LRESULT on_uah_draw_menu(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
+		{
+			// デフォルト処理の後に実行します。
+			my::scope_exit scope_exit([&]()
+			{
+				// 引数を取得します。
+				auto uah_menu = (UAHMENU*)l_param;
+
+				// テーマを取得します。
+				my::theme::unique_ptr<> theme(::OpenThemeData(hwnd, VSCLASS_MENU));
+				auto part_id = MENU_BARBACKGROUND;
+				auto state_id = is_active ? MB_ACTIVE : MB_INACTIVE;
+
+				// ウィンドウ矩形を取得します。
+				auto window_rc = my::get_window_rect(hwnd);
+
+				// スリムバー矩形を取得します。
+				auto bar_rc = get_bar_rc(hwnd);
+				::OffsetRect(&bar_rc, -window_rc.left, -window_rc.top);
+
+				// スリムバーを描画します。
+				return on_draw(hwnd, theme.get(), uah_menu->hdc, part_id, state_id, &bar_rc);
+			});
+
+			// デフォルト処理を実行します。
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 		}
 
 		//
@@ -606,9 +648,6 @@ namespace apn::dark::kuro
 		//
 		BOOL on_draw(HWND hwnd, HTHEME theme, HDC dc, int part_id, int state_id, LPCRECT rc)
 		{
-			// スリムバーを使用しない場合は何もしません。
-			if (!hive.slimbar.flag_use) return FALSE;
-
 			// スリムバー矩形を取得します。
 			auto bar_rc = *rc;
 
@@ -617,34 +656,30 @@ namespace apn::dark::kuro
 				// タイトル描画位置の矩形を取得します。
 				auto text_rc = bar_rc;
 
-				// タイトルをスリムバーの中央に描画する場合は
-				if (hive.slimbar.flag_center_of_bar)
+				// タイトルをスリムバー全体の中央に描画する場合は
+				if (config.flag_whole_title)
 				{
+					// 縮小量を算出します。
 					auto deflate = std::max(title_rc.left - bar_rc.left, bar_rc.right - title_rc.right);
 
+					// メニュー項目と干渉しないように描画範囲を縮小します。
 					::InflateRect(&text_rc, -deflate, 0);
 				}
 				// それ以外の場合は
 				else
 				{
+					// タイトル矩形のスペースに描画します。
 					text_rc = title_rc;
 				}
-#if 0 // テスト用コードです。
-				{
-					my::gdi::unique_ptr<HBRUSH> brush(
-						::CreateSolidBrush(RGB(255, 0, 0)));
 
-					::FillRect(dc, &text_rc, brush.get());
-				}
-#endif
 				// ウィンドウテキストを取得します。
 				auto text = my::get_window_text(hwnd);
 
 				// タイトルの書式が指定されている場合は
-				if (hive.slimbar.title_format.length())
+				if (config.title_format.length())
 				{
 					// タイトルを書式化します。
-					text = my::replace(hive.slimbar.title_format, L"%title%", text);
+					text = my::replace(config.title_format, L"%title%", text);
 				}
 
 				// タイトル描画用フォントをセットします。
@@ -711,13 +746,9 @@ namespace apn::dark::kuro
 		//
 		// ウィンドウプロシージャです。
 		//
-		virtual LRESULT on_wnd_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) override
+		virtual LRESULT on_wnd_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param) override
 		{
-			MY_TRACE_FUNC("{/hex}, {/}, {/hex}, {/hex}", hwnd, my::message_to_string(message), wParam, lParam);
-
-			// スリムバーを使用しない場合は何もしません。
-			if (!hive.slimbar.flag_use)
-				return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			MY_TRACE_FUNC("{/hex}, {/}, {/hex}, {/hex}", hwnd, my::message_to_string(message), w_param, l_param);
 
 			//
 			// このクラスはデバッグ用のテキストを出力します。
@@ -744,97 +775,118 @@ namespace apn::dark::kuro
 
 			switch (message)
 			{
+			case WM_NCACTIVATE:
+				{
+					ScopeText scope_text(L"WM_NCACTIVATE");
+
+					// アクティブ状態を取得しておきます。
+					is_active = !!w_param;
+
+					return __super::on_wnd_proc(hwnd, message, w_param, l_param);
+				}
+			}
+
+			if (message == c_message.c_apply_config)
+			{
+				ScopeText scope_text(L"c_message.c_apply_config");
+
+				return apply_config();
+			}
+
+			// スリムバーを使用しない場合は以下のメッセージは処理しません。
+			if (!config.flag_use)
+				return __super::on_wnd_proc(hwnd, message, w_param, l_param);
+
+			switch (message)
+			{
 			case WM_ACTIVATE:
 				{
 					ScopeText scope_text(L"WM_ACTIVATE");
 
-					return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+					return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 				}
 			case WM_NCPAINT:
 				{
 					ScopeText scope_text(L"WM_NCPAINT");
 
-					return __super::on_wnd_proc(hwnd, message, wParam, lParam);
-				}
-			case WM_NCACTIVATE:
-				{
-					ScopeText scope_text(L"WM_NCACTIVATE");
-
-					return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+					return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 				}
 			case WM_NCCALCSIZE:
 				{
 					ScopeText scope_text(L"WM_NCCALCSIZE");
 
-					return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+					return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 				}
 			case WM_NCHITTEST:
 				{
 					ScopeText scope_text(L"WM_NCHITTEST");
 
-					return on_nc_hittest(hwnd, message, wParam, lParam);
+					return on_nc_hittest(hwnd, message, w_param, l_param);
 				}
 			case WM_NCLBUTTONDOWN:
 				{
 					ScopeText scope_text(L"WM_NCLBUTTONDOWN");
 
-					return on_nc_l_button_down(hwnd, message, wParam, lParam);
+					return on_nc_l_button_down(hwnd, message, w_param, l_param);
 				}
 			case WM_NCRBUTTONDOWN:
 				{
 					ScopeText scope_text(L"WM_NCRBUTTONDOWN");
 
-					return on_nc_r_button_down(hwnd, message, wParam, lParam);
+					return on_nc_r_button_down(hwnd, message, w_param, l_param);
 				}
 			case WM_NCMOUSEMOVE:
 				{
 					ScopeText scope_text(L"WM_NCMOUSEMOVE");
 
-					return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+					return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 				}
 			case WM_NCMOUSELEAVE:
 				{
 					ScopeText scope_text(L"WM_NCMOUSELEAVE");
 
-					return on_nc_mouse_leave(hwnd, message, wParam, lParam);
+					return on_nc_mouse_leave(hwnd, message, w_param, l_param);
 				}
 			case WM_STYLECHANGED:
 				{
 					ScopeText scope_text(L"WM_STYLECHANGED");
 
-					return on_style_changed(hwnd, message, wParam, lParam);
+					return on_style_changed(hwnd, message, w_param, l_param);
 				}
-			case WM_GETMINMAXINFO:
+			case WM_WINDOWPOSCHANGING:
 				{
-					ScopeText scope_text(L"WM_GETMINMAXINFO");
+					ScopeText scope_text(L"WM_WINDOWPOSCHANGING");
 
-					return on_get_min_max_info(hwnd, message, wParam, lParam);
+					return on_window_pos_changing(hwnd, message, w_param, l_param);
 				}
 			case WM_SIZE:
 				{
 					ScopeText scope_text(L"WM_SIZE");
 
-					return on_size(hwnd, message, wParam, lParam);
+					return on_size(hwnd, message, w_param, l_param);
 				}
 			case WM_SETTEXT:
 				{
 					ScopeText scope_text(L"WM_SETTEXT");
 
-					return on_set_text(hwnd, message, wParam, lParam);
+					return on_set_text(hwnd, message, w_param, l_param);
 				}
-			}
-
-			if (message == c_message.c_draw)
-			{
-				if (auto context = (DrawContext*)lParam)
+			case WM_UAHDRAWMENU:
 				{
-					ScopeText scope_text(L"c_message.c_draw");
+					ScopeText scope_text(L"WM_UAHDRAWMENU");
 
-					return on_draw(hwnd, context->theme, context->dc, context->part_id, context->state_id, context->rc);
+					return on_uah_draw_menu(hwnd, message, w_param, l_param);
 				}
 			}
 
-			return __super::on_wnd_proc(hwnd, message, wParam, lParam);
+			if (message == c_message.c_update_layout)
+			{
+				ScopeText scope_text(L"c_message.c_update_layout");
+
+				return update_layout();
+			}
+
+			return __super::on_wnd_proc(hwnd, message, w_param, l_param);
 		}
 	};
 }

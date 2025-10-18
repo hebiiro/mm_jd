@@ -213,13 +213,13 @@ namespace apn::dark::kuro::paint::d2d
 		//
 		// 描画に使用するプロパティです。
 		//
-		HDC dc;
-		LPCRECT rc;
-		UINT text_flags;
-		const Pigment* pigment;
-		int iw, ih;
-		float w, h;
-		std::wstring s;
+		HDC dc = {};
+		LPCRECT rc = {};
+		UINT text_flags = {};
+		const Pigment* pigment = {};
+		int iw = {}, ih = {};
+		float w = {}, h = {};
+		std::wstring s = {};
 
 		//
 		// コンストラクタです。
@@ -228,7 +228,7 @@ namespace apn::dark::kuro::paint::d2d
 			: dc(dc), rc(rc), text_flags(text_flags), pigment(pigment)
 		{
 			// 引数が無効の場合は失敗します。
-			if (!text || !rc) return;
+			if (!text || !rc || ::IsRectEmpty(rc)) return;
 
 			// ピグメントが無効の場合は失敗します。
 			if (!pigment->text.is_valid()) return;
@@ -242,11 +242,16 @@ namespace apn::dark::kuro::paint::d2d
 			w = (float)iw;
 			h = (float)ih;
 
-			// 描画矩形が無効の場合は失敗します。
-			if (iw < 0 || ih < 0) return;
-
 			// 文字列を取得します。
 			s = (c < 0) ? std::wstring(text) : std::wstring(text, c);
+		}
+
+		//
+		// 初期化が正常に完了している場合はTRUEを返します。
+		//
+		BOOL is_initialized() const
+		{
+			return iw & ih;
 		}
 
 		//
@@ -296,7 +301,7 @@ namespace apn::dark::kuro::paint::d2d
 				core.c_pixel_format);
 			ComPtr<ID2D1Bitmap1> offscreen;
 			hr = wic_device_context->CreateBitmap(
-				D2D1::SizeU(iw * 2, ih * 2), nullptr, 0, &offscreen_props, &offscreen);
+				D2D1::SizeU(iw, ih), nullptr, 0, &offscreen_props, &offscreen);
 			if (!offscreen) return 0;
 
 			// オフスクリーンビットマップに描画します。
@@ -416,8 +421,8 @@ namespace apn::dark::kuro::paint::d2d
 		{
 			MY_TRACE_FUNC("{/hex}, {/}, ({/}), {/hex}", dc, s, safe_string(rc), text_flags);
 
-			// 文字列が無効の場合は何もしません。
-			if (s.empty()) return 0;
+			// 初期化が正常に完了していない場合は何もしません。
+			if (!is_initialized()) return 0;
 
 			// レンダーターゲットとデバイスコンテキストをバインドします。
 			Core::Binder binder(dc, rc);

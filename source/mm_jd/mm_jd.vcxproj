@@ -196,7 +196,6 @@ copy /Y "$(TargetPath)" "%root%\$(TargetName).dll"
     <ClInclude Include="kuro\hook\entry\gdi.hpp" />
     <ClInclude Include="kuro\hook\entry\mmd.hpp" />
     <ClInclude Include="kuro\hook\entry\theme.hpp" />
-    <ClInclude Include="kuro\slimbar.hpp" />
     <ClInclude Include="kuro\paint\d2d\core.hpp" />
     <ClInclude Include="kuro\paint\d2d\recter.hpp" />
     <ClInclude Include="kuro\paint\d2d\texter.hpp" />

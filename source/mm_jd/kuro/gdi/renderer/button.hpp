@@ -19,6 +19,8 @@ namespace apn::dark::kuro::gdi
 
 			return CDRF_DODEFAULT;
 
+			// テスト用コードです。
+
 			auto cd = (NMTVCUSTOMDRAW*)lParam;
 
 			MY_TRACE_HEX(cd->nmcd.dwDrawStage);
