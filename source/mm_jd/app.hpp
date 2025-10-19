@@ -47,7 +47,7 @@ namespace apn::dark
 
 			// コンフィグをファイルから読み込みます。
 			// ※コンフィグファイルへの書き込みは
-			// aviutl2ウィンドウが終了するときに実行されます。
+			// mmdウィンドウが終了するときに実行されます。
 			read_config();
 
 			// スタイルファイルの監視をリセットします。
@@ -56,27 +56,12 @@ namespace apn::dark
 			// カスタムカラーファイルの監視をリセットします。
 			reset_custom_color_file_watcher();
 
+			// フックの初期化後処理を実行します。
+			post_init_hook();
+
 			// 初期化後メッセージをポストします。
 			::PostMessage(hive.theme_window, hive.c_message.c_post_init, 0, 0);
 
-#ifdef _DEBUG // テスト用コードです。
-			{
-				for (int i = 0; i < 50; i++)
-					MY_TRACE("{/} => {/hex}\n", i, hive.orig.GetSysColor(i));
-
-				auto window_color = hive.orig.GetSysColor(COLOR_WINDOW);
-				auto button_color = hive.orig.GetSysColor(COLOR_BTNFACE);
-				auto background_color = hive.orig.GetSysColor(COLOR_BACKGROUND);
-				auto menu_color = hive.orig.GetSysColor(COLOR_MENU);
-				auto menu_hilight_color = hive.orig.GetSysColor(COLOR_MENUHILIGHT);
-				auto menu_bar_color = hive.orig.GetSysColor(COLOR_MENUBAR);
-				auto hilight_color = hive.orig.GetSysColor(COLOR_HIGHLIGHT);
-				auto button_hilight_color = hive.orig.GetSysColor(COLOR_BTNHIGHLIGHT);
-				auto hot_light_color = hive.orig.GetSysColor(COLOR_HOTLIGHT);
-
-				int break_point = 0; // ここでシステムカラーを確認します。
-			}
-#endif
 			return TRUE;
 		}
 
@@ -108,6 +93,29 @@ namespace apn::dark
 		virtual BOOL post_init() override
 		{
 			MY_TRACE_FUNC("");
+
+			// メニュー項目の右側配置を抑制する場合は
+			if (hive.etc.flag_no_right_justify)
+			{
+				// メニューを取得します。
+				auto menu = ::GetMenu(hive.theme_window);
+
+				// メニュー項目の数を取得します。
+				auto c = ::GetMenuItemCount(menu);
+
+				// メニュー項目を走査します。
+				for (decltype(c) i = 0; i < c; i++)
+				{
+					// メニュー項目のタイプを取得します。
+					MENUITEMINFOW mii = { sizeof(mii) };
+					mii.fMask = MIIM_FTYPE;
+					::GetMenuItemInfoW(menu, i, TRUE, &mii);
+
+					// メニュー項目のタイプを変更します。
+					mii.fType &= ~MFT_RIGHTJUSTIFY;
+					::SetMenuItemInfoW(menu, i, TRUE, &mii);
+				}
+			}
 
 			// スリムメニューバーの設定をウィンドウに適用します。
 			hive.slimbar.apply_config();
@@ -209,6 +217,16 @@ namespace apn::dark
 
 				return TRUE;
 			}, 0);
+		}
+
+		//
+		// フックの初期化後処理を実行します。
+		//
+		BOOL post_init_hook()
+		{
+			kuro::hook::mmd.on_post_init();
+
+			return TRUE;
 		}
 
 		//

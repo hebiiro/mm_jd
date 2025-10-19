@@ -375,6 +375,7 @@ namespace apn::dark::kuro::paint
 		//
 		BOOL d2d_draw_text(HDC dc, LPCRECT rc, LPCWSTR text, int c, DWORD text_flags, const Pigment* pigment, BOOL opaque = TRUE)
 		{
+#if 0 // 描画クオリティが低いので、文字列はD2Dで描画しないようにします。
 			if (hive.jd.use_d2d)
 			{
 //				TextAttribute text_attribute(dc, pigment, opaque);
@@ -382,7 +383,7 @@ namespace apn::dark::kuro::paint
 				if (auto result = d2d::Texter(dc, text, c, rc, text_flags, pigment).draw_text())
 					return !!result;
 			}
-
+#endif
 			return draw_text(dc, rc, text, c, text_flags, pigment, opaque);
 		}
 

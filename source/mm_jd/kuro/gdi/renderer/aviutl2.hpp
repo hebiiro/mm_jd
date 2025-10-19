@@ -4,53 +4,12 @@ namespace apn::dark::kuro::gdi
 {
 	struct AviUtl2Renderer : Renderer
 	{
-		//
-		// スリムバーです。
-		//
-		my::slimbar_t slimbar;
-
-		//
-		// ウィンドウにアタッチしたときの処理です。
-		//
-		virtual BOOL on_attach(HWND hwnd)
-		{
-			slimbar.subclass(hwnd);
-
-			return __super::on_attach(hwnd);
-		}
-
-		//
-		// ウィンドウからデタッチしたときの処理です。
-		//
-		virtual BOOL on_detach(HWND hwnd)
-		{
-			slimbar.unsubclass();
-
-			return __super::on_detach(hwnd);
-		}
-
 		virtual LRESULT on_subclass_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) override
 		{
 			MY_TRACE_FUNC("{/hex}, {/}, {/hex}, {/hex}", hwnd, my::message_to_string(message), wParam, lParam);
 
 			switch (message)
 			{
-/*
-			case WM_MOUSEACTIVATE:
-				{
-					MY_TRACE_FUNC("WM_MOUSEACTIVATE, hwnd = {/hex}, ht = {/hex}, mouse_message = {/hex}", wParam, LOWORD(lParam), HIWORD(lParam));
-
-					// デフォルト処理を実行します。
-					auto result = __super::on_subclass_proc(hwnd, message, wParam, lParam);
-
-					// 通常のマウスアクティブ化処理を実行する場合は
-					if (hive.etc.default_mouse_activate)
-						return MA_ACTIVATE; // マウスメッセージを破棄しないようにします。
-
-					// デフォルトの結果を返します。(マウスメッセージを破棄します)
-					return result;
-				}
-*/
 			case WM_CLOSE:
 				{
 					MY_TRACE_FUNC("WM_CLOSE");
@@ -88,14 +47,13 @@ namespace apn::dark::kuro::gdi
 		virtual BOOL on_rectangle(MessageState* current_state, HDC dc, int left, int top, int right, int bottom) override
 		{
 			MY_TRACE_FUNC("{/hex}, ({/}, {/}, {/}, {/})", dc, left, top, right, bottom);
-
+#if 0 // テスト用コードです。
 			// 現在のブラシの色を取得します。
 			auto brush = (HBRUSH)::GetCurrentObject(dc, OBJ_BRUSH);
 			auto brush_color = paint::get_brush_color(brush);
 
-			// テスト用コードです。
 //			::SelectObject(dc, ::GetStockObject(BLACK_BRUSH));
-
+#endif
 			return hive.orig.Rectangle(dc, left, top, right, bottom);
 		}
 
@@ -121,10 +79,9 @@ namespace apn::dark::kuro::gdi
 #endif
 				}
 			}
-
-			// テスト用コードです。
-//			brush = (HBRUSH)::GetStockObject(BLACK_BRUSH);
-
+#if 0 // テスト用コードです。
+			brush = (HBRUSH)::GetStockObject(BLACK_BRUSH);
+#endif
 			return hive.orig.FillRect(dc, rc, brush);
 		}
 

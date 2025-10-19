@@ -186,6 +186,22 @@ namespace apn::dark
 		} shadow;
 
 		//
+		// このクラスはその他の設定です。
+		//
+		struct etc_t
+		{
+			//
+			// TRUEの場合はコントロールを再配置します。
+			//
+			BOOL flag_arrange = FALSE;
+
+			//
+			// TRUEの場合はメニュー項目の右側配置を抑制します。
+			//
+			BOOL flag_no_right_justify = FALSE;
+		} etc;
+
+		//
 		// レンダラを使用するかどうかのフラグです。
 		// レンダラの使用を停止したい場合はTRUEに設定します。
 		//

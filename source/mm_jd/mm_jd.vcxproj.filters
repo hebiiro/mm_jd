@@ -344,7 +344,6 @@
       <Filter>kuro</Filter>
     </ClInclude>
     <ClInclude Include="mmd_window.hpp" />
-    <ClInclude Include="available_fonts.hpp" />
     <ClInclude Include="kuro\color.hpp">
       <Filter>kuro</Filter>
     </ClInclude>

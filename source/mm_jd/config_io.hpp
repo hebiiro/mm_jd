@@ -250,6 +250,8 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
+			read_bool(root, "etc.flag_arrange", hive.etc.flag_arrange);
+			read_bool(root, "etc.flag_no_right_justify", hive.etc.flag_no_right_justify);
 			read_window_pos(root, "config_dialog", config_dialog);
 
 			return TRUE;
@@ -262,6 +264,8 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
+			write_bool(root, "etc.flag_arrange", hive.etc.flag_arrange);
+			write_bool(root, "etc.flag_no_right_justify", hive.etc.flag_no_right_justify);
 			write_window_pos(root, "config_dialog", config_dialog);
 
 			return TRUE;

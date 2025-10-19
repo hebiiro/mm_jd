@@ -18,6 +18,8 @@
 #define IDC_SLIMBAR_BUTTON_WIDTH_SPIN   1105
 #define IDC_SLIMBAR_TITLE_FORMAT_STAT   1106
 #define IDC_SLIMBAR_TITLE_FORMAT        1107
+#define IDC_SLIMBAR_FLAG_USE2           1108
+#define IDC_SLIMBAR_FLAG_WHOLE_TITLE2   1109
 #define IDC_ROUND_GROUPBOX              1200
 #define IDC_ROUND_FLAG_USE              1201
 #define IDC_ROUND_SIZE_STAT             1202
@@ -51,6 +53,9 @@
 #define IDC_SCROLLBAR_REDUCTION_STAT    1603
 #define IDC_SCROLLBAR_REDUCTION         1604
 #define IDC_SCROLLBAR_REDUCTION_SPIN    1605
+#define IDC_ETC_GROUPBOX                1700
+#define IDC_ETC_FLAG_ARRANGE            1701
+#define IDC_ETC_FLAG_NO_RIGHT_JUSTIFY   1702
 #define IDC_DROP_DOWN                   31201
 #define IDC_DROP_DOWN_LIST              31202
 #define IDC_EDITBOX                     31203

@@ -88,6 +88,9 @@ namespace apn::dark
 			set_check(IDC_SCROLLBAR_HAS_GRIPPER, hive.scrollbar.has_gripper);
 			set_int(IDC_SCROLLBAR_REDUCTION, hive.scrollbar.reduction);
 
+			set_check(IDC_ETC_FLAG_ARRANGE, hive.etc.flag_arrange);
+			set_check(IDC_ETC_FLAG_NO_RIGHT_JUSTIFY, hive.etc.flag_no_right_justify);
+
 			return TRUE;
 		}
 
@@ -129,6 +132,9 @@ namespace apn::dark
 			get_check(IDC_SCROLLBAR_HAS_GRIPPER, hive.scrollbar.has_gripper);
 			get_int(IDC_SCROLLBAR_REDUCTION, hive.scrollbar.reduction);
 
+			get_check(IDC_ETC_FLAG_ARRANGE, hive.etc.flag_arrange);
+			get_check(IDC_ETC_FLAG_NO_RIGHT_JUSTIFY, hive.etc.flag_no_right_justify);
+
 			if (redraw) app->redraw();
 
 			return TRUE;
@@ -168,6 +174,8 @@ namespace apn::dark
 							break;
 						}
 					case IDC_JD_EXCLUDE_COMDLG32:
+					case IDC_ETC_FLAG_ARRANGE:
+					case IDC_ETC_FLAG_NO_RIGHT_JUSTIFY:
 						{
 							from_ui(FALSE);
 
