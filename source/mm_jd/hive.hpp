@@ -177,7 +177,7 @@ namespace apn::dark
 			//
 			// 影のオフセット(位置)です。1/10px単位です。
 			//
-			POINT offset = { 10, 30 };
+			POINT offset = { 10, 10 };
 
 			//
 			// ぼかしの範囲です。1/10px単位です。

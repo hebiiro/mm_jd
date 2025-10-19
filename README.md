@@ -1,4 +1,4 @@
-﻿# 🎉ダークモード化MOD
+﻿# 🎉MMDダークモード化MOD
 
 * mmdをダークモード化するMODです。
 * `jd`は`just dark`または`二黒土星(jikoku dosei)`の略です。
@@ -27,12 +27,12 @@
 ### 🏷️`ダークモード化の設定`ダイアログを表示する
 
 1. mmdウィンドウのメニューで`MMDPlugin`を選択します。
-1. `mmd_jd\mmd_jd.dll～`→`設定`を選択します。
+1. `mm_jd\mm_jd.dll～`→`設定`を選択します。
 1. `ダークモード化の設定`ダイアログが表示されます。
 
 ### 🏷️設定を初期化する
 
-1. mmdを起動していない状態で`plugin\mmd_jd\config\mmd_jd.json`を削除します。
+1. mmdを起動していない状態で`plugin\mm_jd\config\mm_jd.json`を削除します。
 
 ## 🔧設定
 
@@ -84,11 +84,11 @@
 
 ## 📝スタイルファイル
 
-1. `plugin\mmd_jd\config\style.conf`をテキストエディタで編集します。
+1. `plugin\mm_jd\config\style.conf`をテキストエディタで編集します。
 
 ## 📝独自スタイルファイル
 
-1. `plugin\mmd_jd\config\custom_color.conf`をテキストエディタで編集します。
+1. `plugin\mm_jd\config\custom_color.conf`をテキストエディタで編集します。
 
 ### 書式
 
