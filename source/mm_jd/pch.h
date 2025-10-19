@@ -70,8 +70,7 @@ using namespace Gdiplus;
 #include <wrl/client.h>
 using Microsoft::WRL::ComPtr;
 
-#include "mmdplugin_dev_ver0.41_x64\mmd_plugin.h"
-
+#include "mmdplugin\mmd_plugin.h"
 #include "nlohmann/json.hpp"
 #include "detours/detours.h"
 #pragma comment(lib, "detours/detours.lib")
