@@ -297,12 +297,9 @@ namespace apn::dark::kuro
 
 			try
 			{
-				// プラグインフォルダのパスを取得します。
-				auto plugin_folder_path = my::get_module_file_name(hive.instance).parent_path();
-
 				// スタイルファイルのパスを取得します。
-				auto assets_path = plugin_folder_path / L"assets/style.conf";
-				auto config_path = plugin_folder_path / L"config/style.conf";
+				auto assets_path = hive.assets_folder_path / L"style.conf";
+				auto config_path = hive.config_folder_path / L"style.conf";
 
 				// コンフィグフォルダにファイルが存在しない場合は
 				if (!std::filesystem::exists(config_path))

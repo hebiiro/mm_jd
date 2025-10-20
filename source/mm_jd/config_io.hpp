@@ -14,15 +14,17 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
+			// コンフィグフォルダのパスを取得します。
 			auto module_file_path = my::get_module_file_name(hive.instance);
-			auto config_folder_path = module_file_path.parent_path() / L"config";
+			hive.config_folder_path = module_file_path.parent_path() / L"config";
 
-			path = hive.config_file_name = config_folder_path /
+			// コンフィグファイルのパスを取得します。
+			path = hive.config_file_name = hive.config_folder_path /
 				module_file_path.filename().replace_extension(L".json");
 			MY_TRACE_STR(hive.config_file_name);
 
 			// コンフィグフォルダを作成しておきます。
-			try { std::filesystem::create_directories(config_folder_path); } catch (...) {}
+			try { std::filesystem::create_directories(hive.config_folder_path); } catch (...) {}
 
 			return TRUE;
 		}

@@ -14,15 +14,17 @@ namespace apn::dark
 		{
 			MY_TRACE_FUNC("");
 
+			// アセットフォルダのパスを取得します。
 			auto module_file_path = my::get_module_file_name(hive.instance);
-			auto assets_folder_path = module_file_path.parent_path() / L"assets";
+			hive.assets_folder_path = module_file_path.parent_path() / L"assets";
 
-			path = hive.assets_file_name = assets_folder_path /
+			// アセットファイルのパスを取得します。
+			path = hive.assets_file_name = hive.assets_folder_path /
 				module_file_path.filename().replace_extension(L".json");
 			MY_TRACE_STR(hive.assets_file_name);
 
 			// アセットフォルダを作成しておきます。
-			try { std::filesystem::create_directories(assets_folder_path); } catch (...) {}
+			try { std::filesystem::create_directories(hive.assets_folder_path); } catch (...) {}
 
 			return TRUE;
 		}

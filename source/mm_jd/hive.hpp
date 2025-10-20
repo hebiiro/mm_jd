@@ -45,9 +45,19 @@ namespace apn::dark
 		int show_config_id = 0;
 
 		//
+		// アセットフォルダのパスです。
+		//
+		std::filesystem::path assets_folder_path;
+
+		//
 		// アセットのファイル名です。
 		//
 		std::wstring assets_file_name;
+
+		//
+		// コンフィグフォルダのパスです。
+		//
+		std::filesystem::path config_folder_path;
 
 		//
 		// コンフィグのファイル名です。

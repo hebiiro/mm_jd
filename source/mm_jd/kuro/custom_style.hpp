@@ -232,12 +232,9 @@ namespace apn::dark::kuro
 
 			try
 			{
-				// プラグインフォルダのパスを取得します。
-				auto plugin_folder_path = my::get_module_file_name(hive.instance).parent_path();
-
 				// カスタムカラーファイルのパスを取得します。
-				auto assets_path = plugin_folder_path / L"assets/custom_color.conf";
-				auto config_path = plugin_folder_path / L"config/custom_color.conf";
+				auto assets_path = hive.assets_folder_path / L"custom_color.conf";
+				auto config_path = hive.config_folder_path / L"custom_color.conf";
 
 				// コンフィグフォルダにファイルが存在しない場合は
 				if (!std::filesystem::exists(config_path))
