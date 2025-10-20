@@ -127,12 +127,17 @@ namespace apn::dark::kuro::theme
 
 				// シェルのテーマ
 				register_renderer(L"ImmersiveStart::" VSCLASS_MENU, &immersive_start::menu_renderer);
-
-				// ウィンドウを再描画してカスタムテーマを反映させます。
-				::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
-					SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE |
-					SWP_FRAMECHANGED | SWP_NOCOPYBITS);
 			}
+
+			// ウィンドウを再描画してカスタムテーマを反映させます。
+			::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+				SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE |
+				SWP_FRAMECHANGED | SWP_NOCOPYBITS);
+
+			// ウィンドウがアクティブな場合は
+			// WM_ACTIVATEを送信してNC領域の配色を更新させます。
+			if (::GetActiveWindow() == hwnd)
+				::SendMessage(hwnd, WM_ACTIVATE, TRUE, 0);
 
 			return TRUE;
 		}

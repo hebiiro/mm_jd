@@ -13,16 +13,6 @@ namespace apn::dark::kuro::gdi
 		std::shared_ptr<Renderer> find_renderer(
 			HWND hwnd, const Renderer::NormalizedClassName& class_name)
 		{
-			//
-			// この関数は指定された文字列が指定された正規表現パターンにマッチする場合はTRUEを返します。
-			//
-			const auto match = [](const std::wstring& text, const std::wstring& pattern) -> BOOL
-			{
-				if (pattern.empty()) return FALSE;
-
-				return std::regex_search(text, std::wregex(pattern));
-			};
-
 //			if (class_name == L"#32768") return std::make_shared<MenuRenderer>();
 			if (class_name == L"#32770")
 			{
@@ -74,7 +64,8 @@ namespace apn::dark::kuro::gdi
 			if (class_name == TOOLBARCLASSNAME) return std::make_shared<ToolBarRenderer>();
 
 			// mmdのメインウィンドウです。
-			if (class_name == L"Polygon Movie Maker") return std::make_shared<AviUtl2Renderer>();
+			if (class_name == L"Polygon Movie Maker")
+				return std::make_shared<AviUtl2Renderer>();
 
 			if (hive.comdlg32_visible_count)
 			{
@@ -141,14 +132,6 @@ namespace apn::dark::kuro::gdi
 		BOOL init(HWND hwnd)
 		{
 			MY_TRACE_FUNC("");
-
-			// aviutl2ウィンドウにレンダラーを関連付けます。
-			attach_renderer(hwnd);
-
-			// aviutl2ウィンドウがアクティブな場合は
-			// WM_ACTIVATEを送信してNC領域の配色を更新させます。
-			if (::GetActiveWindow() == hwnd)
-				::SendMessage(hwnd, WM_ACTIVATE, TRUE, 0);
 
 			return TRUE;
 		}
