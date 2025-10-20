@@ -31,7 +31,8 @@ namespace apn::dark
 					::AppendMenuW(extra_menu, MF_STRING, hive.show_config_id, L"設定");
 
 					MENUITEMINFOW mii = { sizeof(mii) };
-					mii.fMask = MIIM_SUBMENU;
+					mii.fMask = MIIM_STRING | MIIM_SUBMENU;
+					mii.dwTypeData = (LPWSTR)L"🐍MMDダークモード化MOD";
 					mii.hSubMenu = extra_menu;
 					::SetMenuItemInfoW(sub_menu, i, TRUE, &mii);
 
