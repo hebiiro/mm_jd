@@ -181,6 +181,7 @@ namespace apn::dark::kuro::hook
 					auto control_id = ::GetWindowLongPtr(hwnd, GWLP_ID);
 					switch (control_id)
 					{
+//					case 0x00000198: // 再生ボタン
 					case 0x000001A1: // フレーム操作
 						break;
 					case 0x000001A2: // フレーム操作 => ＜
@@ -223,6 +224,12 @@ namespace apn::dark::kuro::hook
 					case 0x00000224: // 角度 => Y
 					case 0x00000225: // 角度 => Z
 					case 0x00000226: // 距離
+						y -= 2; h += 3; break;
+					case 0x000001FA: // 表情操作 => まゆ
+					case 0x000001FF: // 表情操作 => 目
+					case 0x00000204: // 表情操作 => リップ
+					case 0x00000209: // 表情操作 => その他
+						x -= 0; w += 3;
 						y -= 2; h += 3; break;
 					}
 				}
