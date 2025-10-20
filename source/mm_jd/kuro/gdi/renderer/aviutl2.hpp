@@ -30,6 +30,15 @@ namespace apn::dark::kuro::gdi
 						// コンフィグダイアログを表示します。
 						app->show_config_dialog();
 					}
+					// 再生開始/終了時、D2D描画が有効になっている場合は
+					else if (control_id == 0x0198 && hive.jd.use_d2d)
+					{
+						// 一時的にD2D描画を無効にします。
+						hive.jd.use_d2d = FALSE;
+						my::scope_exit scope_exit([](){ hive.jd.use_d2d = TRUE; });
+
+						return __super::on_subclass_proc(hwnd, message, wParam, lParam);
+					}
 
 					break;
 				}
