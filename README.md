@@ -172,6 +172,7 @@ HotTextShadow=ff000080
 * MMDPluginDLL https://github.com/Soul-chan/MMDPluginDLL
 * Microsoft Research Detours Package https://github.com/microsoft/Detours
 * JSON for Modern C++ https://github.com/nlohmann/json
+* illustAC https://www.ac-illust.com/
 
 ## 👽️作成者情報
  

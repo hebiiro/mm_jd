@@ -8,11 +8,25 @@ namespace apn::dark::kuro::hook
 	inline struct mmd_t : Entry
 	{
 		//
+		// mmdウィンドウの右上に描画するアイコンです。
+		//
+		my::icon::unique_ptr<> loupe_and_cross_arrow;
+
+		//
 		// 初期化処理を実行します。
 		//
 		virtual BOOL on_init() override
 		{
 			MY_TRACE_FUNC("");
+
+			{
+				// アイコンのパスを取得します。
+				auto path = hive.assets_folder_path / L"loupe_and_cross_arrow.ico";
+
+				// アイコンを読み込みます。
+				loupe_and_cross_arrow.reset((HICON)::LoadImageW(
+					nullptr, path.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE));
+			}
 
 			auto mmd = ::GetModuleHandleW(nullptr);
 			MY_TRACE_HEX(mmd);
@@ -46,7 +60,6 @@ namespace apn::dark::kuro::hook
 				auto mmd = ::GetModuleHandleW(nullptr);
 				MY_TRACE_HEX(mmd);
 
-				my::hook::attach_import(TextOutA, mmd, "TextOutA");
 				my::hook::attach_import(MoveWindow, mmd, "MoveWindow");
 				my::hook::attach_import(CreateWindowExA, mmd, "CreateWindowExA");
 			}
@@ -62,8 +75,7 @@ namespace apn::dark::kuro::hook
 			{
 				auto wcs = my::ws({ text, (size_t)c });
 
-				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/}, {/} : {/}",
-					ret_addr(&dc), dc, x, y, wcs, c, ::GetCurrentThreadId());
+				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/}, {/}", ret_addr(&dc), dc, x, y, wcs, c);
 
 				{
 					// ダイアログとして描画します。
@@ -92,8 +104,8 @@ namespace apn::dark::kuro::hook
 				HDC dc, PTRIVERTEX vertex, ULONG vertex_count,
 				PVOID mesh, ULONG mesh_count, ULONG mode)
 			{
-				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/hex} : {/}",
-					ret_addr(&dc), dc, vertex_count, mesh_count, mode, ::GetCurrentThreadId());
+				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/hex}",
+					ret_addr(&dc), dc, vertex_count, mesh_count, mode);
 
 				if (mesh_count == 1 && vertex_count == 2 && mode == GRADIENT_FILL_RECT_V)
 				{
@@ -139,41 +151,14 @@ namespace apn::dark::kuro::hook
 				HDC dc, int x, int y, int cx, int cy,
 				HDC src_dc, int src_x, int src_y, DWORD rop)
 			{
-				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/}, {/}, {/hex}, {/}, {/} : {/}",
-					ret_addr(&dc), dc, x, y, cx, cy, src_dc, src_x, src_y, ::GetCurrentThreadId());
+				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/}, {/}, {/hex}, {/}, {/}",
+					ret_addr(&dc), dc, x, y, cx, cy, src_dc, src_x, src_y);
 
 				if (cx == 49 && cy == 24)
 				{
-					// 描画領域を取得します。
-					auto rc = RECT { x, y, x + cx, y + cy - 3 };
-
-					// アイコン描画用のピグメントを作成します。
-					auto pigment = paint::Pigment {
-						{},
-						{},
-						{ RGB(0, 255, 0) },
-					};
-
-					// アイコンの属性をセットします。
-					paint::IconAttribute icon_attribute(dc, &rc, paint::c_pseudo, 0);
-
-					// 虫眼鏡アイコンを描画します。
-					{
-						auto s = std::wstring(L"🔍");
-						auto text_flags = DT_LEFT | DT_VCENTER | DT_SINGLELINE;
-
-						paint::d2d::Texter(dc, s.c_str(), (int)s.length(), &rc, text_flags, &pigment).draw_text();
-					}
-
-					// 十字アイコンを描画します。
-					{
-						auto s = std::wstring(L"✚");
-						auto text_flags = DT_RIGHT | DT_VCENTER | DT_SINGLELINE;
-
-						paint::d2d::Texter(dc, s.c_str(), (int)s.length(), &rc, text_flags, &pigment).draw_text();
-					}
-
-					return TRUE;
+					// 代わりのアイコンを描画します。
+					return ::DrawIconEx(dc, x, y - 1,
+						mmd.loupe_and_cross_arrow.get(), 0, 0, 0, nullptr, DI_NORMAL);
 				}
 
 				return orig_proc(dc, x, y, cx, cy, src_dc, src_x, src_y, rop);
