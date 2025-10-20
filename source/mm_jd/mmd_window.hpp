@@ -32,7 +32,7 @@ namespace apn::dark
 
 					MENUITEMINFOW mii = { sizeof(mii) };
 					mii.fMask = MIIM_STRING | MIIM_SUBMENU;
-					mii.dwTypeData = (LPWSTR)L"🐍MMDダークモード化MOD";
+					mii.dwTypeData = my::ws(version_info.name).data();
 					mii.hSubMenu = extra_menu;
 					::SetMenuItemInfoW(sub_menu, i, TRUE, &mii);
 

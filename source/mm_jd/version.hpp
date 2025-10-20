@@ -9,6 +9,6 @@ namespace apn::dark
 		//
 		// プラグイン名とバージョン番号です。
 		//
-		const std::string name = "ダークモード化MOD r1";
+		const std::string name = "ダークモード化 r2";
 	} version_info;
 }
