@@ -27,12 +27,14 @@ namespace apn::dark
 				auto text = my::get_menu_item_text(sub_menu, i, MF_BYPOSITION);
 				if (text.find(L"mm_jd") != text.npos)
 				{
+					auto item_name = my::ws(version_info.name);
+
 					auto extra_menu = ::CreatePopupMenu();
 					::AppendMenuW(extra_menu, MF_STRING, hive.show_config_id, L"設定");
 
 					MENUITEMINFOW mii = { sizeof(mii) };
 					mii.fMask = MIIM_STRING | MIIM_SUBMENU;
-					mii.dwTypeData = my::ws(version_info.name).data();
+					mii.dwTypeData = item_name.data();
 					mii.hSubMenu = extra_menu;
 					::SetMenuItemInfoW(sub_menu, i, TRUE, &mii);
 
