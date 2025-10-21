@@ -15,7 +15,7 @@ namespace apn::dark::kuro::paint
 			//
 			// 描画可能な場合はTRUEを返します。
 			//
-			BOOL is_valid() const
+			constexpr BOOL is_valid() const
 			{
 				return color_entry.parts[0].is_valid();
 			}
@@ -23,7 +23,7 @@ namespace apn::dark::kuro::paint
 			//
 			// 不透明な場合はTRUEを返します。
 			//
-			BOOL is_opaque() const
+			constexpr BOOL is_opaque() const
 			{
 				return !!color_entry.parts[0].rgba.a;
 			}
@@ -31,7 +31,7 @@ namespace apn::dark::kuro::paint
 			//
 			// 配色をwin32形式で返します。
 			//
-			COLORREF get_win32_color() const
+			constexpr COLORREF get_win32_color() const
 			{
 				return color_entry.parts[0].win32;
 			}
@@ -44,8 +44,16 @@ namespace apn::dark::kuro::paint
 			//
 			// (デフォルト)コンストラクタです。
 			//
-			Background(const ColorEntry& color_entry = {})
+			constexpr Background(const ColorEntry& color_entry = {})
 				: Base(color_entry)
+			{
+			}
+
+			//
+			// コピーコンストラクタです。
+			//
+			constexpr Background(const Background& rhs)
+				: Base(rhs.color_entry)
 			{
 			}
 
@@ -55,14 +63,6 @@ namespace apn::dark::kuro::paint
 			~Background()
 			{
 				exit();
-			}
-
-			//
-			// コピーコンストラクタです。
-			//
-			Background(const Background& rhs)
-			{
-				assign(rhs);
 			}
 
 			//
