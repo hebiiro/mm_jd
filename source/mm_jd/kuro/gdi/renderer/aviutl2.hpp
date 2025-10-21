@@ -60,8 +60,21 @@ namespace apn::dark::kuro::gdi
 			// 現在のブラシの色を取得します。
 			auto brush = (HBRUSH)::GetCurrentObject(dc, OBJ_BRUSH);
 			auto brush_color = paint::get_brush_color(brush);
+			MY_TRACE_HEX(brush_color);
 
-//			::SelectObject(dc, ::GetStockObject(BLACK_BRUSH));
+			// ダイアログのパレットを使用します。
+			const auto& palette = paint::dialog_material.palette;
+
+			auto part_id = WP_DIALOG;
+			auto state_id = ETS_NORMAL;
+
+			if (auto pigment = palette.get(part_id, state_id))
+				::SelectObject(dc, pigment->background.get_brush());
+/*
+			static my::gdi::unique_ptr<HBRUSH> brush(::CreateSolidBrush(RGB(255, 0, 0)));
+
+			::SelectObject(dc, brush.get());
+*/
 #endif
 			return hive.orig.Rectangle(dc, left, top, right, bottom);
 		}
