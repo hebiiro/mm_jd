@@ -86,8 +86,25 @@ namespace apn::dark::kuro::hook
 
 					if (auto pigment = palette.get(part_id, state_id))
 					{
-						return paint::stylus.ext_text_out(dc, x, y, 0,
-							nullptr, wcs.c_str(), (UINT)wcs.length(), nullptr, pigment);
+						// テキストの色を取得します。
+						auto text_color = ::GetTextColor(dc);
+						MY_TRACE_HEX(text_color);
+
+						// テキストの色が選択色の場合は
+						if (::GetTextColor(dc) != RGB(0, 0, 0))
+						{
+							const auto pigment2 = paint::Pigment {
+								{}, {}, { text_color }, pigment->text_shadow };
+
+							return paint::stylus.ext_text_out(dc, x, y, 0,
+								nullptr, wcs.c_str(), (UINT)wcs.length(), nullptr, &pigment2);
+						}
+						// それ以外の場合は
+						else
+						{
+							return paint::stylus.ext_text_out(dc, x, y, 0,
+								nullptr, wcs.c_str(), (UINT)wcs.length(), nullptr, pigment);
+						}
 					}
 				}
 
@@ -151,8 +168,8 @@ namespace apn::dark::kuro::hook
 				HDC dc, int x, int y, int cx, int cy,
 				HDC src_dc, int src_x, int src_y, DWORD rop)
 			{
-				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/}, {/}, {/hex}, {/}, {/}",
-					ret_addr(&dc), dc, x, y, cx, cy, src_dc, src_x, src_y);
+				MY_TRACE_FUNC("{/hex}, {/hex}, {/}, {/}, {/}, {/}, {/hex}, {/}, {/}, {/hex}",
+					ret_addr(&dc), dc, x, y, cx, cy, src_dc, src_x, src_y, rop);
 
 				if (cx == 49 && cy == 24)
 				{
