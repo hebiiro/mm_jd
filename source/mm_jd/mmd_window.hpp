@@ -18,26 +18,53 @@ namespace apn::dark
 			hive.show_config_id = createWM_APP_ID();
 			hive.slimbar.subclass(hive.theme_window);
 
+			// メインメニューを取得します。
 			auto menu = ::GetMenu(hive.theme_window);
-			auto sub_menu = ::GetSubMenu(menu, 8);
-			auto c = ::GetMenuItemCount(sub_menu);
 
+			// メインメニューの項目数を取得します。
+			auto c = ::GetMenuItemCount(menu);
+
+			// メインメニューの項目を走査します。
 			for (decltype(c) i = 0; i < c; i++)
 			{
-				auto text = my::get_menu_item_text(sub_menu, i, MF_BYPOSITION);
-				if (text.find(L"mm_jd") != text.npos)
+				// メニュー項目のテキストを取得します。
+				auto text = my::get_menu_item_text(menu, i, MF_BYPOSITION);
+
+				// メニュー項目が操作対象ではない場合は何もしません。
+				if (text != L"MMDPlugin") continue;
+
+				// サブメニューを取得します。
+				auto sub_menu = ::GetSubMenu(menu, i);
+
+				// サブメニューの項目数を取得します。
+				auto c = ::GetMenuItemCount(sub_menu);
+
+				// サブメニューの項目を走査します。
+				for (decltype(c) i = 0; i < c; i++)
 				{
+					// メニュー項目のテキストを取得します。
+					auto text = my::get_menu_item_text(sub_menu, i, MF_BYPOSITION);
+
+					// メニュー項目が操作対象ではない場合は何もしません。
+					if (text.find(L"mm_jd") == text.npos) continue;
+
+					// バージョン情報を取得します。
 					auto item_name = my::ws(version_info.name);
 
+					// エキストラメニューを作成します。
 					auto extra_menu = ::CreatePopupMenu();
+
+					// エキストラメニューにメニュー項目を追加します。
 					::AppendMenuW(extra_menu, MF_STRING, hive.show_config_id, L"設定");
 
+					// メニュー項目にバージョン情報とエキストラメニューをセットします。
 					MENUITEMINFOW mii = { sizeof(mii) };
 					mii.fMask = MIIM_STRING | MIIM_SUBMENU;
 					mii.dwTypeData = item_name.data();
 					mii.hSubMenu = extra_menu;
 					::SetMenuItemInfoW(sub_menu, i, TRUE, &mii);
 
+					// ループを終了します。
 					break;
 				}
 			}
