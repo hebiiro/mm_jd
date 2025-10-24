@@ -425,7 +425,7 @@ namespace apn::dark::kuro::paint::d2d
 			if (!is_initialized()) return 0;
 
 			// レンダーターゲットとデバイスコンテキストをバインドします。
-			Core::Binder binder(dc, rc);
+			core_t::binder_t binder(dc, rc);
 
 			if (hive.shadow.flag_use && hive.shadow.flag_blur)
 				return draw_text_with_blur();

@@ -46,8 +46,17 @@ namespace apn::dark::kuro::gdi
 
 			if (message == hive.c_message.c_post_init)
 			{
+				MY_TRACE_FUNC("c_post_init");
+
 				// 初期化後処理を実行します。
 				app->post_init();
+			}
+			else if (message == hive.c_message.c_recreate)
+			{
+				MY_TRACE_FUNC("c_recreate");
+
+				// インターフェイスを再作成します。
+				paint::d2d::core.recreate();
 			}
 
 			return __super::on_subclass_proc(hwnd, message, wParam, lParam);

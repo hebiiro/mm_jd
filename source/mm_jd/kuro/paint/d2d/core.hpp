@@ -5,12 +5,17 @@ namespace apn::dark::kuro::paint::d2d
 	//
 	// このクラスはD2Dのコアです。
 	//
-	inline struct Core
+	inline struct core_t
 	{
 		ComPtr<IDWriteFactory> dw_factory;
 		ComPtr<ID2D1Factory1> d2d_factory;
 		ComPtr<IWICImagingFactory> wic_factory;
 		ComPtr<ID2D1DCRenderTarget> render_target;
+
+		//
+		// インターフェイスを再作成中の場合はTRUEになります。
+		//
+		BOOL flag_recreating = FALSE;
 
 		//
 		// 共通して使用されるピクセルフォーマットです。
@@ -81,8 +86,14 @@ namespace apn::dark::kuro::paint::d2d
 		{
 			MY_TRACE_FUNC("");
 
+			// ファクトリを作成します。
 			if (FAILED(create_factory())) return FALSE;
+
+			// レンダーターゲットを作成します。
 			if (FAILED(create_render_target())) return FALSE;
+
+			// フラグをリセットします。
+			flag_recreating = FALSE;
 
 			return TRUE;
 		}
@@ -94,9 +105,14 @@ namespace apn::dark::kuro::paint::d2d
 		{
 			MY_TRACE_FUNC("");
 
+			// インターフェイスを再作成中の場合は何もしません。
+			if (flag_recreating) return FALSE;
+
+			// ファクトリを作成します。
 			if (!d2d_factory)
 				if (FAILED(create_factory())) return FALSE;
 
+			// レンダーターゲットを作成します。
 			if (!render_target)
 				if (FAILED(create_render_target())) return FALSE;
 
@@ -107,12 +123,12 @@ namespace apn::dark::kuro::paint::d2d
 		// このクラスはレンダーターゲットとデバイスコンテキストをバインドします。
 		// 内部的に使用されます。
 		//
-		struct Binder
+		struct binder_t
 		{
 			//
 			// コンストラクタです。
 			//
-			Binder(HDC dc, LPCRECT rc)
+			binder_t(HDC dc, LPCRECT rc)
 			{
 				// デバイスコンテキストにバインドします。
 				core.render_target->BindDC(dc, rc);
@@ -124,11 +140,21 @@ namespace apn::dark::kuro::paint::d2d
 			//
 			// デストラクタです。
 			//
-			~Binder()
+			~binder_t()
 			{
 				// 描画を終了します。
 				if (core.render_target->EndDraw() == D2DERR_RECREATE_TARGET)
-					core.recreate();
+				{
+					// インターフェイスを再作成中ではない場合は
+					if (!core.flag_recreating)
+					{
+						// フラグをセットします。
+						core.flag_recreating = TRUE;
+
+						// インターフェイスを再作成する必要があることを通知します。
+						::PostMessage(hive.theme_window, hive.c_message.c_recreate, 0, 0);
+					}
+				}
 			}
 		};
 	} core;

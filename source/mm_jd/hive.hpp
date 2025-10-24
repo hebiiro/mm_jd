@@ -22,6 +22,11 @@ namespace apn::dark
 			// 初期化後のウィンドウメッセージです。
 			//
 			inline static const auto c_post_init = ::RegisterWindowMessageW(L"mm_jd::post_init");
+
+			//
+			// d2d::core_t::recreate()を呼ばなければならないウィンドウメッセージです。
+			//
+			inline static const auto c_recreate = ::RegisterWindowMessageW(L"mm_jd::recreate");
 		} c_message;
 
 		//
